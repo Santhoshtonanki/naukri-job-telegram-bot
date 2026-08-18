@@ -43,7 +43,7 @@ def fetch_jobs():
         timeout=300
     )
 
-    if response.status_code != 200:
+    if response.status_code not in (200, 201):
         raise RuntimeError(
             f"Apify API error: "
             f"{response.status_code} - {response.text}"
