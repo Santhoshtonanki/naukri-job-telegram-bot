@@ -25,6 +25,9 @@ def main():
         )
 
         print(f"URL: {job.get('url')}")
+        print(f"Location: {job.get('location')}")
+        print(f"Job Location: {job.get('jobLocation')}")
+        print(f"Work Mode: {job.get('workMode')}")
 
         print("-" * 60)
 
