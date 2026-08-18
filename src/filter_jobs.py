@@ -1,159 +1,76 @@
-import re
-
-
-# Relevant DevOps / Cloud job titles.
-JOB_TITLE_KEYWORDS = [
-    "devops",
-    "devops engineer",
-    "aws devops",
-    "cloud engineer",
-    "cloud devops",
-    "devops associate",
-    "site reliability engineer",
-    "sre",
-    "platform engineer",
-]
-
-
-def normalize_text(text):
+def get_job_text(job):
     """
-    Remove HTML tags, extra spaces and convert text to lowercase.
+    Combine useful job fields into one searchable text.
     """
 
-    if not text:
-        return ""
+    description = job.get("description", {})
 
-    text = re.sub(r"<[^>]+>", " ", str(text))
-    text = re.sub(r"\s+", " ", text)
+    if isinstance(description, dict):
+        full_description = description.get("full", "")
+        short_description = description.get("short", "")
+    else:
+        full_description = description or ""
+        short_description = ""
 
-    return text.lower().strip()
+    return normalize_text(
+        " ".join([
+            str(job.get("title", "")),
+            str(job.get("url", "")),
+            str(full_description),
+            str(short_description),
+        ])
+    )
 
 
-def is_relevant_title(job):
+def has_visa_sponsorship(job):
     """
-    Check whether the job title is related to
-    DevOps / Cloud / SRE / Platform Engineering.
+    Detect explicit visa sponsorship / visa support.
     """
 
-    title = normalize_text(job.get("title", ""))
+    text = get_job_text(job)
 
-    for keyword in JOB_TITLE_KEYWORDS:
-        if keyword in title:
+    sponsorship_keywords = [
+        "visa sponsorship",
+        "visa sponsored",
+        "visa sponsor",
+        "sponsor visa",
+        "work visa sponsorship",
+        "visa support",
+        "sponsorship available",
+        "sponsorship provided",
+        "visa assistance",
+        "relocation and visa",
+        "relocation assistance and visa",
+    ]
+
+    for keyword in sponsorship_keywords:
+        if keyword in text:
             return True
 
     return False
 
 
-def has_required_experience(job):
+def is_location_eligible(job):
     """
-    Accept:
+    Current Naukri Actor is India-focused.
 
-    - Intern / Internship
-    - Fresher / Entry Level
-    - 0 years
-    - 0-1 years
-    - 0-2 years
-    - 1-2 years
-
-    Reject jobs requiring more than 2 years.
+    Therefore:
+    - India jobs are allowed.
+    - Remote/Hybrid jobs are allowed.
+    - Explicit visa sponsorship is checked for
+      international-style listings when present.
     """
 
-    experience = job.get("experience", {})
+    wfh_type = str(job.get("wfhType", ""))
 
-    minimum = experience.get("minimum")
-    maximum = experience.get("maximum")
+    # Office / Remote / Hybrid are all acceptable
+    # for the India-focused Naukri search.
+    if wfh_type in ["0", "2", "3"]:
+        return True
 
-    experience_text = normalize_text(
-        experience.get("text", "")
-    )
+    # If work mode is missing, allow the current
+    # India search result rather than rejecting it.
+    if not wfh_type or wfh_type == "None":
+        return True
 
-    # ------------------------------------------------
-    # 1. Explicit intern / internship
-    # ------------------------------------------------
-
-    intern_keywords = [
-        "intern",
-        "internship",
-        "trainee",
-    ]
-
-    for keyword in intern_keywords:
-        if keyword in experience_text:
-            return True
-
-    # ------------------------------------------------
-    # 2. Explicit fresher / entry-level
-    # ------------------------------------------------
-
-    fresher_keywords = [
-        "fresher",
-        "freshers",
-        "entry level",
-        "entry-level",
-        "graduate",
-    ]
-
-    for keyword in fresher_keywords:
-        if keyword in experience_text:
-            return True
-
-    # ------------------------------------------------
-    # 3. Numeric experience
-    # ------------------------------------------------
-
-    try:
-        minimum = float(minimum)
-    except (TypeError, ValueError):
-        minimum = None
-
-    try:
-        maximum = float(maximum)
-    except (TypeError, ValueError):
-        maximum = None
-
-    # If maximum experience is known,
-    # it must not exceed 2 years.
-    if maximum is not None:
-        return maximum <= 2
-
-    # If only minimum experience is available,
-    # allow up to 2 years.
-    if minimum is not None:
-        return minimum <= 2
-
-    # Unknown experience → reject
-    return False
-
-
-def is_relevant_job(job):
-    """
-    Job must satisfy BOTH:
-
-    1. Relevant DevOps / Cloud / SRE title
-    2. Intern / Fresher / Entry Level / <= 2 years
-    """
-
-    return (
-        is_relevant_title(job)
-        and has_required_experience(job)
-    )
-
-
-def filter_jobs(jobs):
-    """
-    Filter the complete list of fetched jobs.
-    """
-
-    filtered_jobs = []
-
-    for job in jobs:
-
-        if is_relevant_job(job):
-            filtered_jobs.append(job)
-
-    print(
-        f"Relevant jobs: "
-        f"{len(filtered_jobs)} / {len(jobs)}"
-    )
-
-    return filtered_jobs
+    return has_visa_sponsorship(job)
