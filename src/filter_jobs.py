@@ -1,12 +1,12 @@
 import re
 
 
-JOB_KEYWORDS = [
+JOB_TITLE_KEYWORDS = [
     "devops",
+    "devops engineer",
     "aws devops",
     "cloud engineer",
     "cloud devops",
-    "devops engineer",
     "devops associate",
     "site reliability engineer",
     "sre",
@@ -24,37 +24,37 @@ def normalize_text(text):
     return text.lower().strip()
 
 
-def is_relevant_job(job):
+def is_relevant_title(job):
     title = normalize_text(job.get("title", ""))
 
-    description = job.get("description", {})
-
-    if isinstance(description, dict):
-        full_description = normalize_text(
-            description.get("full", "")
-        )
-        short_description = normalize_text(
-            description.get("short", "")
-        )
-    else:
-        full_description = normalize_text(description)
-        short_description = ""
-
-    searchable_text = (
-        f"{title} "
-        f"{full_description} "
-        f"{short_description}"
-    )
-
-    for keyword in JOB_KEYWORDS:
+    for keyword in JOB_TITLE_KEYWORDS:
         if keyword in title:
             return True
 
-    for keyword in JOB_KEYWORDS:
-        if keyword in searchable_text:
-            return True
-
     return False
+
+
+def has_required_experience(job):
+    experience = job.get("experience", {})
+
+    minimum = experience.get("minimum")
+    maximum = experience.get("maximum")
+
+    try:
+        minimum = float(minimum)
+        maximum = float(maximum)
+    except (TypeError, ValueError):
+        return False
+
+    # We want strictly 1–2 years experience.
+    return minimum >= 1 and maximum <= 2
+
+
+def is_relevant_job(job):
+    return (
+        is_relevant_title(job)
+        and has_required_experience(job)
+    )
 
 
 def filter_jobs(jobs):
