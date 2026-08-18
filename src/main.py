@@ -1,36 +1,21 @@
-from fetch_jobs import fetch_jobs
-from filter_jobs import filter_jobs
+print(f"ID: {job.get('id')}")
+print(f"Title: {job.get('title')}")
 
+company = job.get("company", {})
+print(f"Company: {company.get('name')}")
 
-def main():
-    jobs = fetch_jobs()
+experience = job.get("experience", {})
+print(
+    f"Experience: "
+    f"{experience.get('minimum')}-"
+    f"{experience.get('maximum')} Yrs"
+)
 
-    relevant_jobs = filter_jobs(jobs)
+print(f"URL: {job.get('url')}")
 
-    print("\n========== Relevant Naukri Jobs ==========\n")
+# Temporary location/work-mode debugging
+print(f"Location: {job.get('location')}")
+print(f"Work Mode: {job.get('wfhType')}")
+print(f"Job Location: {job.get('jobLocation')}")
 
-    for job in relevant_jobs:
-        print(f"ID: {job.get('id')}")
-        print(f"Title: {job.get('title')}")
-
-        company = job.get("company", {})
-        print(f"Company: {company.get('name')}")
-
-        experience = job.get("experience", {})
-
-        print(
-            f"Experience: "
-            f"{experience.get('minimum')}-"
-            f"{experience.get('maximum')} Yrs"
-        )
-
-        print(f"URL: {job.get('url')}")
-        print(f"Location: {job.get('location')}")
-        print(f"Job Location: {job.get('jobLocation')}")
-        print(f"Work Mode: {job.get('workMode')}")
-
-        print("-" * 60)
-
-
-if __name__ == "__main__":
-    main()
+print("-" * 60)
