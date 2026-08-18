@@ -1,12 +1,15 @@
 from fetch_jobs import fetch_jobs
+from filter_jobs import filter_jobs
 
 
 def main():
     jobs = fetch_jobs()
 
-    print("\n========== Naukri Jobs ==========\n")
+    relevant_jobs = filter_jobs(jobs)
 
-    for job in jobs:
+    print("\n========== Relevant Naukri Jobs ==========\n")
+
+    for job in relevant_jobs:
         print(f"ID: {job.get('id')}")
         print(f"Title: {job.get('title')}")
 
@@ -14,6 +17,7 @@ def main():
         print(f"Company: {company.get('name')}")
 
         experience = job.get("experience", {})
+
         print(
             f"Experience: "
             f"{experience.get('minimum')}-"
