@@ -1,5 +1,9 @@
 from fetch_jobs import fetch_jobs
 from filter_jobs import filter_jobs
+from duplicate_jobs import (
+    load_sent_jobs,
+    filter_new_jobs,
+)
 
 
 def main():
@@ -7,9 +11,16 @@ def main():
 
     relevant_jobs = filter_jobs(jobs)
 
+    sent_jobs = load_sent_jobs()
+
+    new_jobs = filter_new_jobs(
+        relevant_jobs,
+        sent_jobs
+    )
+
     print("\n========== Relevant Naukri Jobs ==========\n")
 
-    for job in relevant_jobs:
+    for job in new_jobs:
 
         print(f"ID: {job.get('id')}")
         print(f"Title: {job.get('title')}")
