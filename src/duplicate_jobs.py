@@ -1,7 +1,6 @@
 import json
 import os
 
-
 SENT_JOBS_FILE = "sent_jobs.json"
 
 
@@ -10,11 +9,7 @@ def load_sent_jobs():
         return set()
 
     try:
-        with open(
-            SENT_JOBS_FILE,
-            "r",
-            encoding="utf-8"
-        ) as file:
+        with open(SENT_JOBS_FILE, "r", encoding="utf-8") as file:
             data = json.load(file)
 
         return set(data)
@@ -53,12 +48,7 @@ def filter_new_jobs(jobs, sent_jobs):
 
 
 def save_sent_jobs(sent_jobs):
-    with open(
-        SENT_JOBS_FILE,
-        "w",
-        encoding="utf-8"
-    ) as file:
-
+    with open(SENT_JOBS_FILE, "w", encoding="utf-8") as file:
         json.dump(
             sorted(sent_jobs),
             file,
