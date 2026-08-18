@@ -13,14 +13,20 @@ def send_telegram_message(message):
 
     payload = {
         "chat_id": chat_id,
-        "text": message
+        "text": message,
+        "disable_web_page_preview": False,
     }
 
-    response = requests.post(url, json=payload, timeout=30)
+    response = requests.post(
+        url,
+        json=payload,
+        timeout=30
+    )
 
     if response.status_code != 200:
         raise RuntimeError(
-            f"Telegram API error: {response.status_code} - {response.text}"
+            f"Telegram API error: "
+            f"{response.status_code} - {response.text}"
         )
 
     print("Telegram message sent successfully")
