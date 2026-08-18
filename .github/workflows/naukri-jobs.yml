@@ -1,9 +1,8 @@
-### NOTE:
+# NOTE:
 # Updated GitHub Actions to Node.js 24-compatible versions:
 # actions/checkout: v4 → v5
 # actions/setup-python: v5 → v6
 # Reason: Node.js 20 deprecation warning.
-
 
 name: Naukri Job Bot
 
@@ -23,8 +22,15 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Run bot
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Telegram test
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python src/main.py
 
 
-        
+## GitHub Secrets → Python programకి securely pass అవుతున్నాయి.
+## GitHub Secret  → GitHub Actions → Environment Variable → Python → Telegram API
