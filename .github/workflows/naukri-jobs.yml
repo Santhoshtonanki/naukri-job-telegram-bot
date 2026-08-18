@@ -29,7 +29,3 @@ jobs:
         env:
           APIFY_API_TOKEN: ${{ secrets.APIFY_API_TOKEN }}
         run: python src/main.py
-
-
-## GitHub Secrets → Python programకి securely pass అవుతున్నాయి.
-## GitHub Secret  → GitHub Actions → Environment Variable → Python → Telegram API
