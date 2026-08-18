@@ -40,24 +40,17 @@ def fetch_jobs():
         print(f"\nSearching Naukri for: {keyword}")
 
         payload = {
-            "title": keyword,
+            "keywords": keyword,
             "location": "India",
-            "sortBy": "date",
-            "freshness": "1",
-            "resultsLimit": 10
-        }
-
-        params = {
-            "format": "json",
-            "clean": "true",
-            "limit": 10,
-            "maxTotalChargeUsd": 0.10
+            "sort": "f",
+            "jobAge": "1",
+            "experience": 1,
+            "limit": 10
         }
 
         response = requests.post(
             APIFY_API_URL,
             headers=headers,
-            params=params,
             json=payload,
             timeout=300
         )
@@ -82,7 +75,7 @@ def fetch_jobs():
         f"duplicate removal: {len(all_jobs)}"
     )
 
-    # Remove duplicates from multiple searches.
+    # Remove duplicate jobs returned by different searches.
     unique_jobs = []
     seen_jobs = set()
 
@@ -91,7 +84,6 @@ def fetch_jobs():
         job_id = job.get("id")
         job_url = job.get("url")
 
-        # Prefer Naukri Job ID.
         unique_key = job_id or job_url
 
         if not unique_key:
