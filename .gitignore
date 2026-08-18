@@ -1,0 +1,5 @@
+.env
+__pycache__/
+*.pyc
+
+## Important: Telegram token ఎప్పుడూ .py fileలో పెట్టకూడదు.
