@@ -49,11 +49,10 @@ def has_required_experience(job):
     Accept only jobs requiring 1 to 2 years of experience.
 
     Examples:
-
-    1-2 Yrs  → YES
-    1-3 Yrs  → NO
-    2-5 Yrs  → NO
-    5-10 Yrs → NO
+    1-2 Yrs  -> YES
+    1-3 Yrs  -> NO
+    2-5 Yrs  -> NO
+    5-10 Yrs -> NO
     """
 
     experience = job.get("experience", {})
@@ -90,42 +89,6 @@ def filter_jobs(jobs):
     Filter the complete list of fetched jobs.
     """
 
-    filtered_jobs = []
-
-    for job in jobs:
-
-        if is_relevant_job(job):
-            filtered_jobs.append(job)
-
-    print(
-        f"Relevant jobs: "
-        f"{len(filtered_jobs)} / {len(jobs)}"
-    )
-
-    return filtered_jobsdef has_required_experience(job):
-    experience = job.get("experience", {})
-
-    minimum = experience.get("minimum")
-    maximum = experience.get("maximum")
-
-    try:
-        minimum = float(minimum)
-        maximum = float(maximum)
-    except (TypeError, ValueError):
-        return False
-
-    # We want strictly 1–2 years experience.
-    return minimum >= 1 and maximum <= 2
-
-
-def is_relevant_job(job):
-    return (
-        is_relevant_title(job)
-        and has_required_experience(job)
-    )
-
-
-def filter_jobs(jobs):
     filtered_jobs = []
 
     for job in jobs:
