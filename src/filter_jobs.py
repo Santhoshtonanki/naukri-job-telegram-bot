@@ -1,7 +1,7 @@
 import re
 
 
-# Job titles that are relevant to our DevOps job search.
+# Relevant DevOps / Cloud job titles.
 JOB_TITLE_KEYWORDS = [
     "devops",
     "devops engineer",
@@ -23,7 +23,7 @@ def normalize_text(text):
     if not text:
         return ""
 
-    text = re.sub(r"<[^>]+>", " ", text)
+    text = re.sub(r"<[^>]+>", " ", str(text))
     text = re.sub(r"\s+", " ", text)
 
     return text.lower().strip()
@@ -46,13 +46,16 @@ def is_relevant_title(job):
 
 def has_required_experience(job):
     """
-    Accept only jobs requiring 1 to 2 years of experience.
+    Accept:
 
-    Examples:
-    1-2 Yrs  -> YES
-    1-3 Yrs  -> NO
-    2-5 Yrs  -> NO
-    5-10 Yrs -> NO
+    - Intern / Internship
+    - Fresher / Entry Level
+    - 0 years
+    - 0-1 years
+    - 0-2 years
+    - 1-2 years
+
+    Reject jobs requiring more than 2 years.
     """
 
     experience = job.get("experience", {})
@@ -60,22 +63,74 @@ def has_required_experience(job):
     minimum = experience.get("minimum")
     maximum = experience.get("maximum")
 
+    experience_text = normalize_text(
+        experience.get("text", "")
+    )
+
+    # ------------------------------------------------
+    # 1. Explicit intern / internship
+    # ------------------------------------------------
+
+    intern_keywords = [
+        "intern",
+        "internship",
+        "trainee",
+    ]
+
+    for keyword in intern_keywords:
+        if keyword in experience_text:
+            return True
+
+    # ------------------------------------------------
+    # 2. Explicit fresher / entry-level
+    # ------------------------------------------------
+
+    fresher_keywords = [
+        "fresher",
+        "freshers",
+        "entry level",
+        "entry-level",
+        "graduate",
+    ]
+
+    for keyword in fresher_keywords:
+        if keyword in experience_text:
+            return True
+
+    # ------------------------------------------------
+    # 3. Numeric experience
+    # ------------------------------------------------
+
     try:
         minimum = float(minimum)
-        maximum = float(maximum)
-
     except (TypeError, ValueError):
-        return False
+        minimum = None
 
-    return minimum >= 1 and maximum <= 2
+    try:
+        maximum = float(maximum)
+    except (TypeError, ValueError):
+        maximum = None
+
+    # If maximum experience is known,
+    # it must not exceed 2 years.
+    if maximum is not None:
+        return maximum <= 2
+
+    # If only minimum experience is available,
+    # allow up to 2 years.
+    if minimum is not None:
+        return minimum <= 2
+
+    # Unknown experience → reject
+    return False
 
 
 def is_relevant_job(job):
     """
-    A job is relevant only when BOTH conditions are satisfied:
+    Job must satisfy BOTH:
 
-    1. Relevant DevOps/Cloud/SRE title
-    2. Experience requirement is strictly 1-2 years
+    1. Relevant DevOps / Cloud / SRE title
+    2. Intern / Fresher / Entry Level / <= 2 years
     """
 
     return (
@@ -92,6 +147,7 @@ def filter_jobs(jobs):
     filtered_jobs = []
 
     for job in jobs:
+
         if is_relevant_job(job):
             filtered_jobs.append(job)
 
